@@ -94,7 +94,10 @@ def optimize(check_id):
 def history():
     checks = database.get_history()
     return render_template("history.html", checks=checks)
-
+    
+@app.route("/healthz")
+def healthz():
+    return {"status": "ok"}, 200
 
 if __name__ == "__main__":
     debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
