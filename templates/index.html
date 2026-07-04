@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Before you hit apply</p>
+  <h1>Will this resume clear the scan?</h1>
+  <p class="hero-sub">Most applications are read by a machine before a human ever sees them. Drop your resume and the job description in — get the same read the ATS gets, plus what to fix.</p>
+</section>
+
+<form class="scan-form" action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data" id="scan-form">
+  <div class="form-grid">
+
+    <div class="field">
+      <label for="resume-input" class="field-label">01 · Resume</label>
+      <div class="dropzone" id="dropzone">
+        <input type="file" name="resume" id="resume-input" accept="application/pdf" required>
+        <div class="dropzone-body" id="dropzone-body">
+          <svg viewBox="0 0 24 24" width="28" height="28" class="dropzone-icon"><path d="M12 3v12m0-12l-4 4m4-4l4 4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <p><strong>Drop PDF here</strong> or click to browse</p>
+          <p class="dropzone-hint">PDF only · up to 8MB</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="jd-input" class="field-label">02 · Job description</label>
+      <textarea name="job_description" id="jd-input" placeholder="Paste the full job posting — responsibilities, requirements, everything. More context, better match." required></textarea>
+      <span class="char-count" id="char-count">0 characters</span>
+    </div>
+
+  </div>
+
+  <button type="submit" class="btn-primary" id="submit-btn">
+    <span class="btn-label">Run the scan</span>
+    <span class="btn-loading">Scanning…</span>
+  </button>
+</form>
+
+<section class="how-it-works">
+  <div class="hiw-item">
+    <span class="hiw-num">01</span>
+    <p>Text is pulled straight from your PDF the way an ATS parser would read it — no manual retyping.</p>
+  </div>
+  <div class="hiw-item">
+    <span class="hiw-num">02</span>
+    <p>Gemini checks real hiring standards for the role, then judges experience depth, impact, and fit — keyword overlap is only a small slice of the score.</p>
+  </div>
+  <div class="hiw-item">
+    <span class="hiw-num">03</span>
+    <p>You get a score, what's actually missing, and a rewritten draft built to clear the scan without reading like it was written by AI.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='upload.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="result-head">
+  <p class="eyebrow">Scan complete · {{ check.resume_filename }}</p>
+  <h1>Here's what the ATS sees</h1>
+</section>
+
+<div class="result-grid">
+
+  <div class="gauge-card">
+    <svg viewBox="0 0 200 120" class="gauge" id="gauge">
+      <path d="M20 110 A80 80 0 0 1 180 110" class="gauge-track" fill="none"/>
+      <path d="M20 110 A80 80 0 0 1 180 110" class="gauge-fill" fill="none"
+            id="gauge-fill" data-score="{{ check.ats_score }}"/>
+    </svg>
+    <div class="gauge-readout">
+      <span class="gauge-number" id="gauge-number" data-target="{{ check.ats_score }}">0</span>
+      <span class="gauge-max">/100</span>
+    </div>
+    <p class="gauge-label">
+      {% if check.ats_score >= 80 %}Strong match — likely to pass
+      {% elif check.ats_score >= 55 %}Partial match — worth revising
+      {% else %}Weak match — needs work before applying
+      {% endif %}
+    </p>
+    <p class="gauge-footnote">Weighted on experience depth, impact, and market fit — keywords are a small factor.</p>
+  </div>
+
+  <div class="keyword-card">
+    <h2>Keyword signal <span class="card-weight">~15% of score</span></h2>
+    <div class="keyword-group">
+      <h3 class="kw-heading kw-matched">Matched · {{ check.matched_keywords|length }}</h3>
+      <div class="chip-row">
+        {% for kw in check.matched_keywords %}
+        <span class="chip chip-matched">{{ kw }}</span>
+        {% else %}
+        <span class="chip-empty">No overlapping terms found.</span>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="keyword-group">
+      <h3 class="kw-heading kw-missing">Missing · {{ check.missing_keywords|length }}</h3>
+      <div class="chip-row">
+        {% for kw in check.missing_keywords %}
+        <span class="chip chip-missing">{{ kw }}</span>
+        {% else %}
+        <span class="chip-empty">Nothing critical missing.</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% if check.market_comparison %}
+<div class="market-card">
+  <h2>How you compare right now</h2>
+  <p>{{ check.market_comparison }}</p>
+</div>
+{% endif %}
+
+<div class="detail-grid">
+
+  <div class="detail-card">
+    <h2>Formatting flags</h2>
+    {% if check.formatting_issues %}
+    <ul class="flag-list">
+      {% for issue in check.formatting_issues %}
+      <li>{{ issue }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty-note">No parsing issues detected — the layout reads cleanly.</p>
+    {% endif %}
+  </div>
+
+  <div class="detail-card">
+    <h2>Fix these next</h2>
+    <ol class="suggestion-list">
+      {% for suggestion in check.suggestions %}
+      <li>{{ suggestion }}</li>
+      {% endfor %}
+    </ol>
+  </div>
+
+</div>
+
+<div class="rewrite-cta">
+  <div>
+    <h2>Want this fixed for you?</h2>
+    <p>Generate a rewritten version of your resume — same facts, sharpened for this role, and built to clear the scan.</p>
+  </div>
+  <a href="{{ url_for('optimize', check_id=check.id) }}" class="btn-primary btn-rewrite">Generate optimized resume</a>
+</div>
+
+<div class="result-actions">
+  <a href="{{ url_for('index') }}" class="btn-secondary">Run another scan</a>
+  <a href="{{ url_for('history') }}" class="btn-ghost">View history</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const score = Number(document.getElementById('gauge-fill').dataset.score);
+  const arcLength = 251;
+  const offset = arcLength - (arcLength * score) / 100;
+  const fill = document.getElementById('gauge-fill');
+  const numberEl = document.getElementById('gauge-number');
+
+  const color = score >= 80 ? 'var(--match)' : score >= 55 ? 'var(--gold)' : 'var(--missing)';
+  fill.style.stroke = color;
+
+  requestAnimationFrame(() => {
+    fill.style.strokeDashoffset = offset;
+  });
+
+  const duration = 1100;
+  const start = performance.now();
+  function tick(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    numberEl.textContent = Math.round(progress * score);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+{% endblock %}

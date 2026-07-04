@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero hero-compact">
+  <p class="eyebrow">Scan log</p>
+  <h1>Your history</h1>
+</section>
+
+{% if checks %}
+<div class="log-table-wrap">
+  <table class="log-table">
+    <thead>
+      <tr>
+        <th>Resume</th>
+        <th>Job description</th>
+        <th>Score</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for check in checks %}
+      <tr>
+        <td class="log-file">{{ check.resume_filename }}</td>
+        <td class="log-jd">{{ check.jd_text|truncate(140) }}</td>
+        <td>
+          <span class="score-pill {% if check.ats_score >= 80 %}score-high{% elif check.ats_score >= 55 %}score-mid{% else %}score-low{% endif %}">
+            {{ check.ats_score }}
+          </span>
+        </td>
+        <td class="log-date">{{ check.created_at }}</td>
+        <td><a href="{{ url_for('result', check_id=check.id) }}" class="log-link">View →</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <p>No scans yet.</p>
+  <a href="{{ url_for('index') }}" class="btn-primary">Run your first scan</a>
+</div>
+{% endif %}
+{% endblock %}

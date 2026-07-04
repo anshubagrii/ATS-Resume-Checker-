@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero hero-compact">
+  <p class="eyebrow">Optimized for · {{ check.resume_filename }}</p>
+  <h1>Your rewritten resume</h1>
+  <p class="hero-sub">Same facts, sharpened for this role. Copy it out, give it a read-through, and make it yours before you send it — this is a strong draft, not a final word.</p>
+</section>
+
+<div class="resume-output-card">
+  <div class="resume-output-toolbar">
+    <button class="btn-secondary" id="copy-btn" type="button">Copy to clipboard</button>
+    <button class="btn-ghost" id="download-btn" type="button">Download .txt</button>
+    <a href="{{ url_for('optimize', check_id=check.id, regenerate=1) }}" class="btn-ghost">Regenerate</a>
+  </div>
+  <pre class="resume-output" id="resume-output">{{ check.optimized_resume }}</pre>
+</div>
+
+<div class="result-actions">
+  <a href="{{ url_for('result', check_id=check.id) }}" class="btn-secondary">Back to score</a>
+  <a href="{{ url_for('index') }}" class="btn-ghost">Run another scan</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const output = document.getElementById('resume-output');
+  const copyBtn = document.getElementById('copy-btn');
+  const downloadBtn = document.getElementById('download-btn');
+
+  copyBtn.addEventListener('click', async () => {
+    await navigator.clipboard.writeText(output.textContent);
+    const original = copyBtn.textContent;
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => { copyBtn.textContent = original; }, 1800);
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    const blob = new Blob([output.textContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'optimized_resume.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+})();
+</script>
+{% endblock %}
